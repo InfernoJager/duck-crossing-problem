@@ -13,9 +13,9 @@ public class duckCrossingChallenge {
         System.out.println("Enable output? [y/n]");
         final Boolean displayOutput = convertToBoolean(scanner.next());
 
-        System.out.println("Enter desired length that is an odd number and positive: ");
+        System.out.println("Enter desired length (must be positive): ");
         int length = scanner.nextInt();
-        while (length < 0 || (length%2 == 0)) {
+        while (length < 0) {
             System.out.println("Please enter an appropriate length: ");
             length = scanner.nextInt();
         }
@@ -43,7 +43,7 @@ public class duckCrossingChallenge {
         System.out.println("\n\n\n");
 
         // Creates the appropriate solution
-        if (debug) {System.out.print("\n[DEBUG] Solution: ");}
+        if (debug) {System.out.println("[DEBUG] Solution: ");}
         for (int i = 0; i<length; i++) {
             solution[i] = duckChallenge[(length-i)-1];
 
@@ -52,7 +52,13 @@ public class duckCrossingChallenge {
         if (debug) {System.out.print("\n\n\n");}
 
         Boolean solved = false;
-        long estimatedAttempts = (long)Math.pow(((length+1)/2), 2) - 1;
+
+        // The proper equation for this for both odd and even is ((x-1)/2)^2-1-(((x+1)%2)/4)
+        // The equation of equivalence for odd alone is ((x-1)/2)^2-1, for even numbers it adds another -0.25
+        // This is due to how powers work, (4+1)/2 is 5/2, when squared becomes 25/4, or 6.25
+        // This means the answer would be 5.25 after subtracting 1, 0.25 or 1/4 off of where it should be
+        // Due to the code, when converting to a long, rounding down, there is no need to add this extra calculation here, as it is a constant -0.25
+        long estimatedAttempts = (long)Math.pow(((length+1)/2.0), 2) - 1;
 
         if (debug) {System.out.println("\n[DEBUG] Estimated Turns: " + estimatedAttempts);}
 
@@ -107,10 +113,10 @@ public class duckCrossingChallenge {
             if (displayOutput) {System.out.println("\nTurn " + attempts + "/" + estimatedAttempts);}
             for (int i = 0; i<length; i++) {
                 if (displayOutput) {System.out.println(duckChallenge[i]);}
-                if (duckChallenge[i] != solution[i]) {
-                    solved = false;
-                } else if (i == Math.ceil(length/2)) {
-                    solved = true; 
+                if (duckChallenge[i] == solution[i] && i == 0) {
+                    solved = true;
+                } else if (duckChallenge[i] != solution[i]) {
+                    solved = false; 
                 }
             }
 
@@ -118,7 +124,7 @@ public class duckCrossingChallenge {
             if (!displayOutput) {System.out.print("[" + Math.floor(((double)attempts/estimatedAttempts)*100) + "%]\r");}
 
             // Displays that the puzzle is solved if true
-            if (solved == true) {
+            if (solved) {
                 System.out.println("\n[PUZZLE SOLVED]");
             }
         }
